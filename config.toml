@@ -1,0 +1,37 @@
+[mode]
+debug = true
+
+[http]
+host = "0.0.0.0"
+port = 9000
+
+[mysql]
+host = "127.0.0.1"
+port = 23306
+db = "agile"
+user = "jayden"
+password = "jayden@2025"
+maxOpen = 300
+maxIdle = 100
+maxLife = 3600
+migrate = true
+
+[redis]
+address = "127.0.0.1:16379"
+user = ""
+password = "jayden@2025"
+db = 0
+maxRetries = 3
+poolSize = 300
+minIdle = 30
+
+[email]
+host = "smtp.gmail.com"
+port = 587
+from = ""
+password = ""
+template = "./template/email/captcha.template"
+
+[jwt]
+expire = 604800 # 7 days
+key = "agile.lakehead"

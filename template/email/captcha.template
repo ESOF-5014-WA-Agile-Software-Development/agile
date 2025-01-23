@@ -1,0 +1,58 @@
+From: Agile Group<{{.From}}>
+To: {{.To}}
+Subject: {{.Subject}}
+Content-Type: text/html; charset=UTF-8
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    body {
+        background-color: #FFFFFF;
+    }
+    p {
+        font-size: 16px;
+        text-indent: 2em;
+        margin: 6px 10px;
+        color: #626262;
+        line-height: 30px;
+    }
+    strong {
+        font-size: 18px;
+    }
+    .code {
+        width: 446px;
+        background-color: #F4F4F4;
+        line-height: 50px;
+        margin-left: 40px;
+    }
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+</head>
+<body>
+<p>
+    Dear user,
+</p>
+<br/>
+<p>
+    Thank you for signing up for our services.
+</p>
+<p>
+    To complete the registration process and verify your email address, please input the captcha:
+</p>
+<p class="code">
+    <strong>{{.Captcha}}</strong>
+</p>
+<p>
+    The captcha will expire after two minutes.
+</p>
+<br/>
+<p>
+    Best regards,
+</p>
+<p>
+    Agile Group
+</p>
+
+</body>
+</html>
