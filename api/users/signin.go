@@ -32,12 +32,12 @@ type signInByMetaMaskRequest struct {
 	Sign     string `json:"sign" binding:"required"`
 }
 
-func SignIn(rt *runtime.Runtime, c *gin.Context) (interface{}, *api.Error) {
-	t := c.Param("type")
+func SignIn(c *api.Context) (interface{}, *api.Error) {
+	t := c.GinCtx.Param("type")
 
 	switch t {
 	case signInTypeMetamask:
-		return signInByMetaMask(rt, c)
+		return signInByMetaMask(c.Runtime, c.GinCtx)
 	case signInTypeEmail:
 		fallthrough
 	case signInTypePhone:

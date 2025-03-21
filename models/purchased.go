@@ -9,6 +9,8 @@ type Purchased struct {
 	Seller string  `json:"seller" gorm:"type:varchar(64);not null"`
 	Buyer  string  `json:"buyer" gorm:"type:varchar(64);not null"`
 	Amount float64 `json:"amount" gorm:"type:decimal(20,2);not null"`
+
+	Timestamp uint64 `json:"timestamp" gorm:"not null"`
 }
 
 func (Purchased) TableName() string {

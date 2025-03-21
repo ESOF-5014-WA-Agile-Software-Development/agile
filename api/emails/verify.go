@@ -25,12 +25,12 @@ type VerifyEmailRequest struct {
 	Email    string `json:"email" binding:"required"`
 }
 
-func Verify(rt *runtime.Runtime, c *gin.Context) (interface{}, *api.Error) {
-	t := c.Param("type")
+func Verify(c *api.Context) (interface{}, *api.Error) {
+	t := c.GinCtx.Param("type")
 
 	switch t {
 	case verifyTypeEmail:
-		return verifyEmail(rt, c)
+		return verifyEmail(c.Runtime, c.GinCtx)
 	case verifyTypePhone:
 		fallthrough
 	default:

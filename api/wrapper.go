@@ -1,8 +1,10 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 
 	"github.com/mylakehead/agile/code"
@@ -20,7 +22,7 @@ type Error struct {
 	Payload *Payload
 }
 
-type Handler func(rt *runtime.Runtime, gCtx *gin.Context) (interface{}, *Error)
+type Handler func(c *Context) (interface{}, *Error)
 
 type DataType int
 
@@ -40,13 +42,49 @@ func WithDataType(t DataType) func(config *WrapConfig) {
 	}
 }
 
+type Context struct {
+	Runtime   *runtime.Runtime
+	GinCtx    *gin.Context
+	IsLogin   bool
+	UserID    uint
+	UserName  string
+	UserEmail string
+	UserRole  string
+	MetaMasks []string
+}
+
+const tokenPrefix = "token "
+
+func parseToken(token string, key []byte) (*JWTClaims, error) {
+	tokenClaims, err := jwt.ParseWithClaims(token, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return key, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if tokenClaims == nil {
+		return nil, errors.New("invalid claims")
+	}
+
+	claims, ok := tokenClaims.Claims.(*JWTClaims)
+	if !ok {
+		return nil, errors.New("invalid claims")
+	}
+
+	if !tokenClaims.Valid {
+		return nil, errors.New("invalid claims")
+	}
+
+	return claims, nil
+}
+
 // Wrap
 // success:               status - 200
 // bad request:           status - 400
 // unauthorized:          status - 401
 // forbidden:             status - 403
 // internal server error: status - 500
-func Wrap(h Handler, rt *runtime.Runtime, opts ...func(*WrapConfig)) gin.HandlerFunc {
+func Wrap(h Handler, rt *runtime.Runtime, loginRequired bool, opts ...func(*WrapConfig)) gin.HandlerFunc {
 	w := &WrapConfig{
 		RespDataType: DataTypeJson,
 	}
@@ -56,7 +94,38 @@ func Wrap(h Handler, rt *runtime.Runtime, opts ...func(*WrapConfig)) gin.Handler
 	}
 
 	return func(gCtx *gin.Context) {
-		data, err := h(rt, gCtx)
+		c := Context{
+			Runtime:   rt,
+			GinCtx:    gCtx,
+			IsLogin:   false,
+			UserID:    0,
+			UserName:  "",
+			UserEmail: "",
+			UserRole:  "",
+			MetaMasks: make([]string, 0),
+		}
+
+		if loginRequired {
+			authToken := gCtx.GetHeader("Authorization")
+			if len(authToken) <= len(tokenPrefix) {
+				gCtx.AbortWithStatus(401)
+				return
+			}
+			token := authToken[len(tokenPrefix):]
+			claims, err := parseToken(token, []byte(rt.Config.Jwt.Key))
+			if err != nil {
+				gCtx.AbortWithStatus(401)
+				return
+			}
+			c.IsLogin = true
+			c.UserID = claims.UserId
+			c.UserName = claims.UserName
+			c.UserEmail = claims.UserEmail
+			c.UserRole = claims.UserRole
+			c.MetaMasks = claims.MetaMasks
+		}
+
+		data, err := h(&c)
 
 		if err != nil {
 			if err.Status == http.StatusInternalServerError {
@@ -79,12 +148,6 @@ func Wrap(h Handler, rt *runtime.Runtime, opts ...func(*WrapConfig)) gin.Handler
 				gCtx.JSON(http.StatusOK, data)
 			}
 		}
-	}
-}
-
-func Redirect(status int) *Error {
-	return &Error{
-		Status: status,
 	}
 }
 

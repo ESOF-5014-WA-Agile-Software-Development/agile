@@ -38,12 +38,12 @@ type signupByMetaMaskRequest struct {
 	Captcha  string `json:"captcha" binding:"required"`
 }
 
-func SignUp(rt *runtime.Runtime, c *gin.Context) (interface{}, *api.Error) {
-	t := c.Param("type")
+func SignUp(c *api.Context) (interface{}, *api.Error) {
+	t := c.GinCtx.Param("type")
 
 	switch t {
 	case signupTypeMetamask:
-		return signupByMetaMask(rt, c)
+		return signupByMetaMask(c.Runtime, c.GinCtx)
 	case signupTypeEmail:
 		fallthrough
 	case signupTypePhone:

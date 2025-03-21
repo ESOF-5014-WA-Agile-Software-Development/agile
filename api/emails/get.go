@@ -1,18 +1,15 @@
 package emails
 
 import (
-	"github.com/gin-gonic/gin"
-
 	"github.com/mylakehead/agile/api"
 	"github.com/mylakehead/agile/models"
-	"github.com/mylakehead/agile/runtime"
 )
 
-func Exists(rt *runtime.Runtime, c *gin.Context) (interface{}, *api.Error) {
-	email := c.Param("email")
+func Exists(c *api.Context) (interface{}, *api.Error) {
+	email := c.GinCtx.Param("email")
 
 	count := int64(0)
-	err := rt.Mysql.Model(&models.User{}).Where("email = ?", email).Count(&count).Error
+	err := c.Runtime.Mysql.Model(&models.User{}).Where("email = ?", email).Count(&count).Error
 	if err != nil {
 		return nil, api.InternalServerError()
 	}
