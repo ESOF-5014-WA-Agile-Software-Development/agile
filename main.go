@@ -55,6 +55,8 @@ func httpServer(rt *runtime.Runtime) *http.Server {
 		r.POST("/sign-in/:type", api.Wrap(users.SignIn, rt, false, api.WithDataType(api.DataTypeJson)))
 
 		r.GET("/me/ongoing", api.Wrap(me.Ongoing, rt, true, api.WithDataType(api.DataTypeJson)))
+		r.GET("/me/prediction/:id", api.Wrap(me.GetPrediction, rt, true, api.WithDataType(api.DataTypeJson)))
+		r.POST("/me/prediction/:id", api.Wrap(me.UpdatePrediction, rt, true, api.WithDataType(api.DataTypeJson)))
 	}
 
 	addr := fmt.Sprintf("%s:%d", rt.Config.HTTP.Host, rt.Config.HTTP.Port)

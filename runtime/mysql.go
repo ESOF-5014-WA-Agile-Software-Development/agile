@@ -38,6 +38,7 @@ func initMysql(config *MysqlConfig) (*gorm.DB, error) {
 			&models.User{},
 			&models.MetaMask{},
 			&models.Purchased{},
+			&models.Prediction{},
 		); err != nil {
 			return nil, err
 		}
